@@ -6,20 +6,10 @@
   <strong>CLI tool for analyzing React state management patterns</strong>
 </p>
 
-<p align="center">
-  <a href="https://www.npmjs.com/package/react-state-analyzer">
-    <img src="https://img.shields.io/npm/v/react-state-analyzer.svg" alt="npm version" />
-  </a>
-  <a href="https://www.npmjs.com/package/react-state-analyzer">
-    <img src="https://img.shields.io/npm/dm/react-state-analyzer.svg" alt="npm downloads" />
-  </a>
-  <a href="https://github.com/KyeongJooni/react-state-analyzer/blob/main/LICENSE">
-    <img src="https://img.shields.io/npm/l/react-state-analyzer.svg" alt="license" />
-  </a>
-  <a href="https://nodejs.org">
-    <img src="https://img.shields.io/node/v/react-state-analyzer.svg" alt="node version" />
-  </a>
-</p>
+[![npm version](https://img.shields.io/npm/v/react-state-analyzer.svg)](https://www.npmjs.com/package/react-state-analyzer)
+[![npm downloads](https://img.shields.io/npm/dm/react-state-analyzer.svg)](https://www.npmjs.com/package/react-state-analyzer)
+[![license](https://img.shields.io/npm/l/react-state-analyzer.svg)](https://github.com/KyeongJooni/react-state-analyzer/blob/main/LICENSE)
+[![node version](https://img.shields.io/node/v/react-state-analyzer.svg)](https://nodejs.org)
 
 </div>
 
