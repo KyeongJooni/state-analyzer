@@ -1,20 +1,30 @@
 import { Project, SourceFile, SyntaxKind } from 'ts-morph';
 import * as path from 'path';
 import { StateUsage, ComponentInfo, CustomHookInfo, AnalysisResult, Suggestion } from '@/types';
-import { STATE_PATTERNS } from '@/analysis/patterns';
+import { STATE_PATTERNS, StatePattern } from '@/analysis/patterns';
 import { computeComplexity, computeProjectComplexity } from '@/analysis/complexity';
 import { detectUnusedState, detectRerenderRisks } from '@/analysis/suggestions';
+import { UserConfig, resolvePluginPatterns } from '@/config';
 
 const SKIP_FILE_PATTERN =
   /(styled|styles|constants|types|utils|helpers|config|api|services)\.tsx?$/;
 
 export class StateAnalyzer {
   private project: Project;
+  private patterns: StatePattern[];
+  private excludePatterns: RegExp[];
 
-  constructor() {
+  constructor(config: UserConfig = {}) {
     this.project = new Project({
       skipAddingFilesFromTsConfig: true,
     });
+
+    this.patterns = [...STATE_PATTERNS];
+    if (config.plugins) {
+      this.patterns.push(...resolvePluginPatterns(config.plugins));
+    }
+
+    this.excludePatterns = (config.exclude || []).map((p) => new RegExp(p));
   }
 
   analyze(targetPath: string): AnalysisResult {
@@ -71,6 +81,7 @@ export class StateAnalyzer {
     const relativePath = path.relative(process.cwd(), filePath);
 
     if (SKIP_FILE_PATTERN.test(path.basename(filePath))) return [];
+    if (this.excludePatterns.some((p) => p.test(relativePath))) return [];
 
     for (const func of sourceFile.getFunctions()) {
       const name = func.getName();
@@ -150,7 +161,7 @@ export class StateAnalyzer {
     const lines = code.split('\n');
 
     lines.forEach((line, index) => {
-      for (const pattern of STATE_PATTERNS) {
+      for (const pattern of this.patterns) {
         pattern.regex.lastIndex = 0;
         const matches = line.match(pattern.regex);
         if (matches) {
