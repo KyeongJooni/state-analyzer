@@ -3,7 +3,7 @@ import * as path from 'path';
 import chalk from 'chalk';
 
 const DEFAULT_CONFIG = {
-  exclude: ['__tests__/', 'stories/', 'mocks/', '*.test.*', '*.spec.*'],
+  exclude: ['__tests__', 'stories', 'mocks'],
   threshold: 'C',
 };
 

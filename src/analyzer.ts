@@ -1,5 +1,6 @@
 import { Project, SourceFile, SyntaxKind } from 'ts-morph';
 import * as path from 'path';
+import * as fs from 'fs';
 import { StateUsage, ComponentInfo, CustomHookInfo, AnalysisResult, Suggestion } from '@/types';
 import { STATE_PATTERNS, StatePattern } from '@/analysis/patterns';
 import { computeComplexity, computeProjectComplexity } from '@/analysis/complexity';
@@ -12,7 +13,7 @@ const SKIP_FILE_PATTERN =
 export class StateAnalyzer {
   private project: Project;
   private patterns: StatePattern[];
-  private excludePatterns: RegExp[];
+  private excludePatterns: string[];
 
   constructor(config: UserConfig = {}) {
     this.project = new Project({
@@ -24,23 +25,15 @@ export class StateAnalyzer {
       this.patterns.push(...resolvePluginPatterns(config.plugins));
     }
 
-    this.excludePatterns = (config.exclude || []).map((p) => new RegExp(p));
+    this.excludePatterns = config.exclude || [];
   }
 
   analyze(targetPath: string): AnalysisResult {
-    const absolutePath = path.resolve(targetPath).replace(/\\/g, '/');
+    const absolutePath = path.resolve(targetPath);
 
-    this.project.addSourceFilesAtPaths([
-      `${absolutePath}/**/*.tsx`,
-      `${absolutePath}/**/*.ts`,
-      `!${absolutePath}/**/node_modules/**`,
-      `!${absolutePath}/**/*.test.*`,
-      `!${absolutePath}/**/*.spec.*`,
-      `!${absolutePath}/**/*.d.ts`,
-      `!${absolutePath}/**/*.config.*`,
-      `!${absolutePath}/**/dist/**`,
-      `!${absolutePath}/**/build/**`,
-    ]);
+    for (const filePath of this.walkDir(absolutePath)) {
+      this.project.addSourceFileAtPath(filePath);
+    }
 
     const sourceFiles = this.project.getSourceFiles();
     const components: ComponentInfo[] = [];
@@ -81,7 +74,7 @@ export class StateAnalyzer {
     const relativePath = path.relative(process.cwd(), filePath);
 
     if (SKIP_FILE_PATTERN.test(path.basename(filePath))) return [];
-    if (this.excludePatterns.some((p) => p.test(relativePath))) return [];
+    if (this.excludePatterns.some((p) => relativePath.includes(p))) return [];
 
     for (const func of sourceFile.getFunctions()) {
       const name = func.getName();
@@ -199,5 +192,24 @@ export class StateAnalyzer {
       counts[usage.type] = (counts[usage.type] || 0) + 1;
     }
     return counts;
+  }
+
+  private walkDir(dir: string): string[] {
+    const SKIP_DIRS = /node_modules|dist|build|\.git/;
+    const SKIP_FILES = /\.test\.|\.spec\.|\.d\.ts$|\.config\./;
+    const results: string[] = [];
+
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (!SKIP_DIRS.test(entry.name)) {
+          results.push(...this.walkDir(fullPath));
+        }
+      } else if (/\.(tsx?|jsx?)$/.test(entry.name) && !SKIP_FILES.test(entry.name)) {
+        results.push(fullPath);
+      }
+    }
+
+    return results;
   }
 }

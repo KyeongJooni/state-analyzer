@@ -26,7 +26,7 @@ const program = new Command();
 program
   .name('state-analyzer')
   .description('CLI tool for analyzing React state management patterns')
-  .version('0.5.1');
+  .version('0.5.2');
 
 program
   .command('analyze')
