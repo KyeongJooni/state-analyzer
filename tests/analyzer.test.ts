@@ -216,7 +216,7 @@ describe('StateAnalyzer', () => {
       const result = analyzer.analyze(FIXTURES_DIR);
       expect(result.summary.byType).toBeDefined();
       expect(result.summary.totalStateUsages).toBe(
-        Object.values(result.summary.byType).reduce((a, b) => a + b, 0),
+        (Object.values(result.summary.byType) as number[]).reduce((a, b) => a + b, 0),
       );
     });
 
@@ -256,10 +256,9 @@ describe('StateAnalyzer', () => {
       expect(result.summary.complexity!.grade).toMatch(/^[A-F]$/);
       expect(result.summary.complexity!.averageScore).toBeGreaterThan(0);
 
-      const totalGrades = Object.values(result.summary.complexity!.componentGrades).reduce(
-        (a, b) => a + b,
-        0,
-      );
+      const totalGrades = (
+        Object.values(result.summary.complexity!.componentGrades) as number[]
+      ).reduce((a, b) => a + b, 0);
       expect(totalGrades).toBe(result.components.length);
     });
   });
