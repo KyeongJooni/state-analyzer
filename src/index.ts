@@ -3,21 +3,24 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import * as fs from 'fs';
 import * as path from 'path';
-import { StateAnalyzer } from './analyzer';
+import { StateAnalyzer } from '@/analyzer';
 import {
   AnalysisResult,
   ComponentInfo,
   CustomHookInfo,
   ComplexityGrade,
   Suggestion,
-} from './types';
+} from '@/types';
+import { loadAnalysisResult, computeDiff, printDiff } from '@/output/diff';
+import { generateMarkdown } from '@/output/markdown';
+import { generateMermaid } from '@/output/mermaid';
 
 const program = new Command();
 
 program
   .name('state-analyzer')
   .description('CLI tool for analyzing React state management patterns')
-  .version('0.3.0');
+  .version('0.4.0');
 
 program
   .command('analyze')
@@ -26,27 +29,44 @@ program
   .option('-o, --output <file>', 'Output file path for JSON results')
   .option('-v, --verbose', 'Verbose output')
   .option('-t, --threshold <grade>', 'Fail if project complexity exceeds grade (A/B/C/D/F)')
+  .option('-f, --format <type>', 'Output format: default, md')
+  .option('--mermaid', 'Output Mermaid diagram of component-state dependencies')
   .action(
-    (targetPath: string, options: { output?: string; verbose?: boolean; threshold?: string }) => {
+    (
+      targetPath: string,
+      options: {
+        output?: string;
+        verbose?: boolean;
+        threshold?: string;
+        format?: string;
+        mermaid?: boolean;
+      },
+    ) => {
       console.log(chalk.blue('\nStarting state analysis...\n'));
 
       const analyzer = new StateAnalyzer();
       const result = analyzer.analyze(targetPath);
 
-      printSummary(result);
-      printComplexity(result);
-      printTopComponents(result);
+      if (options.format === 'md') {
+        console.log(generateMarkdown(result));
+      } else if (options.mermaid) {
+        console.log(generateMermaid(result));
+      } else {
+        printSummary(result);
+        printComplexity(result);
+        printTopComponents(result);
 
-      if (result.customHooks.length > 0) {
-        printCustomHooks(result.customHooks);
-      }
+        if (result.customHooks.length > 0) {
+          printCustomHooks(result.customHooks);
+        }
 
-      if (result.suggestions.length > 0) {
-        printSuggestions(result.suggestions);
-      }
+        if (result.suggestions.length > 0) {
+          printSuggestions(result.suggestions);
+        }
 
-      if (options.verbose) {
-        printDetails(result);
+        if (options.verbose) {
+          printDetails(result);
+        }
       }
 
       if (options.output) {
@@ -59,6 +79,18 @@ program
       }
     },
   );
+
+program
+  .command('diff')
+  .description('Compare two analysis results')
+  .argument('<before>', 'Path to previous analysis JSON')
+  .argument('<after>', 'Path to current analysis JSON')
+  .action((beforePath: string, afterPath: string) => {
+    const before = loadAnalysisResult(beforePath);
+    const after = loadAnalysisResult(afterPath);
+    const diff = computeDiff(before, after);
+    printDiff(diff);
+  });
 
 const TYPE_LABELS: Record<string, string> = {
   useState: 'useState',
