@@ -26,6 +26,12 @@ React State Analyzer statically analyzes your React codebase to provide insights
 - **Complexity Scoring** - A~F grade per component and project-wide average
 - **Unused State Detection** - Warns about declared but never-used state variables
 - **Re-render Risk Detection** - Flags anti-patterns like excessive hooks or library mixing
+- **Diff Mode** - Compare two analysis snapshots to track changes over time
+- **Markdown Report** - `--format md` for PR-ready markdown tables
+- **Mermaid Diagram** - `--mermaid` for component-state dependency graphs
+- **Config File** - `.stateanalyzerrc.json` for exclude paths, plugins, defaults
+- **Plugin System** - Register custom state patterns for internal libraries
+- **Watch Mode** - `state-analyzer watch ./src` for live re-analysis on file changes
 - **JSON Export** - Save analysis results for CI/CD integration
 - **Threshold Check** - `--threshold` option for CI gate (exit code 1 on failure)
 
@@ -64,6 +70,9 @@ state-analyzer analyze ./src --mermaid
 
 # Compare two analysis snapshots
 state-analyzer diff before.json after.json
+
+# Watch mode (re-analyze on file changes)
+state-analyzer watch ./src
 ```
 
 ## Example Output
@@ -142,6 +151,40 @@ Compare two analysis JSON files and show changes:
 ```bash
 state-analyzer diff before.json after.json
 ```
+
+### `state-analyzer watch <path>`
+
+Watch for file changes and re-analyze automatically:
+
+```bash
+state-analyzer watch ./src
+```
+
+## Configuration
+
+Create a `.stateanalyzerrc.json` in your project root:
+
+```json
+{
+  "exclude": ["legacy/", "generated/"],
+  "threshold": "C",
+  "format": "default",
+  "plugins": [
+    {
+      "name": "legend-state",
+      "patterns": [{ "regex": "useObservable\\s*\\(", "type": "legend-state" }],
+      "label": "Legend State"
+    }
+  ]
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `exclude` | File path patterns to skip during analysis |
+| `threshold` | Default complexity threshold grade |
+| `format` | Default output format (`default`, `md`) |
+| `plugins` | Custom state patterns for internal/third-party libraries |
 
 ## Use Cases
 
