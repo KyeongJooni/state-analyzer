@@ -16,6 +16,7 @@ import { generateMarkdown } from '@/output/markdown';
 import { generateMermaid } from '@/output/mermaid';
 import { loadConfig, resolvePluginLabels } from '@/config';
 import { startWatch } from '@/watch';
+import { initConfig } from '@/init';
 
 const config = loadConfig();
 const pluginLabels = config.plugins ? resolvePluginLabels(config.plugins) : {};
@@ -25,7 +26,7 @@ const program = new Command();
 program
   .name('state-analyzer')
   .description('CLI tool for analyzing React state management patterns')
-  .version('0.5.0');
+  .version('0.5.1');
 
 program
   .command('analyze')
@@ -95,6 +96,13 @@ program
     const after = loadAnalysisResult(afterPath);
     const diff = computeDiff(before, after);
     printDiff(diff);
+  });
+
+program
+  .command('init')
+  .description('Create a .stateanalyzerrc.json config file')
+  .action(() => {
+    initConfig();
   });
 
 program

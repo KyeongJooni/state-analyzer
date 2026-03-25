@@ -47,6 +47,13 @@ pnpm add -g react-state-analyzer
 bun add -g react-state-analyzer
 ```
 
+## Quick Start
+
+```bash
+# Generate config file
+state-analyzer init
+```
+
 ## Usage
 
 ```bash
