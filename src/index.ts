@@ -14,13 +14,18 @@ import {
 import { loadAnalysisResult, computeDiff, printDiff } from '@/output/diff';
 import { generateMarkdown } from '@/output/markdown';
 import { generateMermaid } from '@/output/mermaid';
+import { loadConfig, resolvePluginLabels } from '@/config';
+import { startWatch } from '@/watch';
+
+const config = loadConfig();
+const pluginLabels = config.plugins ? resolvePluginLabels(config.plugins) : {};
 
 const program = new Command();
 
 program
   .name('state-analyzer')
   .description('CLI tool for analyzing React state management patterns')
-  .version('0.4.0');
+  .version('0.5.0');
 
 program
   .command('analyze')
@@ -44,7 +49,7 @@ program
     ) => {
       console.log(chalk.blue('\nStarting state analysis...\n'));
 
-      const analyzer = new StateAnalyzer();
+      const analyzer = new StateAnalyzer(config);
       const result = analyzer.analyze(targetPath);
 
       if (options.format === 'md') {
@@ -92,6 +97,14 @@ program
     printDiff(diff);
   });
 
+program
+  .command('watch')
+  .description('Watch for file changes and re-analyze')
+  .argument('<path>', 'Directory path to watch')
+  .action((targetPath: string) => {
+    startWatch(targetPath, config);
+  });
+
 const TYPE_LABELS: Record<string, string> = {
   useState: 'useState',
   useContext: 'useContext',
@@ -104,6 +117,7 @@ const TYPE_LABELS: Record<string, string> = {
   valtio: 'Valtio',
   'tanstack-query': 'TanStack Query',
   swr: 'SWR',
+  ...pluginLabels,
 };
 
 const GRADE_COLORS: Record<ComplexityGrade, (text: string) => string> = {
