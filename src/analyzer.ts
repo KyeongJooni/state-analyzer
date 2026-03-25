@@ -1,6 +1,12 @@
 import { Project, SourceFile, SyntaxKind } from 'ts-morph';
 import * as path from 'path';
-import { StateUsage, ComponentInfo, AnalysisResult } from './types';
+import { StateUsage, ComponentInfo, CustomHookInfo, AnalysisResult, Suggestion } from './types';
+import { STATE_PATTERNS } from './analysis/patterns';
+import { computeComplexity, computeProjectComplexity } from './analysis/complexity';
+import { detectUnusedState, detectRerenderRisks } from './analysis/suggestions';
+
+const SKIP_FILE_PATTERN =
+  /(styled|styles|constants|types|utils|helpers|config|api|services)\.tsx?$/;
 
 export class StateAnalyzer {
   private project: Project;
@@ -28,24 +34,34 @@ export class StateAnalyzer {
 
     const sourceFiles = this.project.getSourceFiles();
     const components: ComponentInfo[] = [];
+    const customHooks: CustomHookInfo[] = [];
     const allUsages: StateUsage[] = [];
+    const suggestions: Suggestion[] = [];
 
     for (const sourceFile of sourceFiles) {
       const fileComponents = this.analyzeFile(sourceFile);
       components.push(...fileComponents);
-      fileComponents.forEach(comp => allUsages.push(...comp.stateUsages));
+      fileComponents.forEach((comp) => allUsages.push(...comp.stateUsages));
+
+      customHooks.push(...this.analyzeCustomHooks(sourceFile));
+      suggestions.push(...detectUnusedState(sourceFile));
     }
 
-    const byType = this.countByType(allUsages);
+    for (const comp of components) {
+      comp.complexity = computeComplexity(comp);
+      suggestions.push(...detectRerenderRisks(comp));
+    }
 
     return {
       summary: {
         totalComponents: components.length,
         totalStateUsages: allUsages.length,
-        byType,
+        byType: this.countByType(allUsages),
+        complexity: computeProjectComplexity(components),
       },
       components,
-      suggestions: [],
+      customHooks,
+      suggestions,
     };
   }
 
@@ -54,47 +70,34 @@ export class StateAnalyzer {
     const filePath = sourceFile.getFilePath();
     const relativePath = path.relative(process.cwd(), filePath);
 
-    // Skip common non-component files
-    const fileName = path.basename(filePath);
-    if (/(styled|styles|constants|types|utils|helpers|config|api|services)\.tsx?$/.test(fileName)) {
-      return [];
-    }
+    if (SKIP_FILE_PATTERN.test(path.basename(filePath))) return [];
 
-    // Find function declarations and arrow functions that might be components
-    const functions = sourceFile.getFunctions();
-    const variableDeclarations = sourceFile.getVariableDeclarations();
-
-    // Analyze function components
-    for (const func of functions) {
+    for (const func of sourceFile.getFunctions()) {
       const name = func.getName();
       if (name && this.isComponentName(name)) {
-        const stateUsages = this.findStateUsages(func.getBody()?.getText() || '', relativePath, name);
+        const stateUsages = this.findStateUsages(
+          func.getBody()?.getText() || '',
+          relativePath,
+          name,
+        );
         if (stateUsages.length > 0 || this.hasJsxReturn(func.getText())) {
-          components.push({
-            name,
-            file: relativePath,
-            stateUsages,
-            children: [],
-          });
+          components.push({ name, file: relativePath, stateUsages, children: [] });
         }
       }
     }
 
-    // Analyze arrow function components
-    for (const varDecl of variableDeclarations) {
+    for (const varDecl of sourceFile.getVariableDeclarations()) {
       const name = varDecl.getName();
       if (this.isComponentName(name)) {
         const initializer = varDecl.getInitializer();
-        if (initializer && initializer.getKind() === SyntaxKind.ArrowFunction) {
-          const text = initializer.getText();
-          const stateUsages = this.findStateUsages(text, relativePath, name);
-          if (stateUsages.length > 0 || this.hasJsxReturn(text)) {
-            components.push({
-              name,
-              file: relativePath,
-              stateUsages,
-              children: [],
-            });
+        if (initializer) {
+          const kind = initializer.getKind();
+          if (kind === SyntaxKind.ArrowFunction || kind === SyntaxKind.CallExpression) {
+            const text = initializer.getText();
+            const stateUsages = this.findStateUsages(text, relativePath, name);
+            if (stateUsages.length > 0 || this.hasJsxReturn(text)) {
+              components.push({ name, file: relativePath, stateUsages, children: [] });
+            }
           }
         }
       }
@@ -103,28 +106,55 @@ export class StateAnalyzer {
     return components;
   }
 
+  private analyzeCustomHooks(sourceFile: SourceFile): CustomHookInfo[] {
+    const hooks: CustomHookInfo[] = [];
+    const filePath = sourceFile.getFilePath();
+    const relativePath = path.relative(process.cwd(), filePath);
+
+    for (const func of sourceFile.getFunctions()) {
+      const name = func.getName();
+      if (name && this.isCustomHookName(name)) {
+        const internalStateUsages = this.findStateUsages(
+          func.getBody()?.getText() || '',
+          relativePath,
+          name,
+        );
+        if (internalStateUsages.length > 0) {
+          hooks.push({ name, file: relativePath, internalStateUsages });
+        }
+      }
+    }
+
+    for (const varDecl of sourceFile.getVariableDeclarations()) {
+      const name = varDecl.getName();
+      if (this.isCustomHookName(name)) {
+        const initializer = varDecl.getInitializer();
+        if (initializer && initializer.getKind() === SyntaxKind.ArrowFunction) {
+          const internalStateUsages = this.findStateUsages(
+            initializer.getText(),
+            relativePath,
+            name,
+          );
+          if (internalStateUsages.length > 0) {
+            hooks.push({ name, file: relativePath, internalStateUsages });
+          }
+        }
+      }
+    }
+
+    return hooks;
+  }
+
   private findStateUsages(code: string, file: string, component: string): StateUsage[] {
     const usages: StateUsage[] = [];
     const lines = code.split('\n');
 
-    const patterns = [
-      { regex: /useState\s*[<(]/g, type: 'useState' as const },
-      { regex: /useContext\s*\(/g, type: 'useContext' as const },
-      { regex: /useReducer\s*\(/g, type: 'useReducer' as const },
-      { regex: /use[A-Z]\w*Store\s*\(/g, type: 'zustand' as const },
-      { regex: /useAtom\s*\(/g, type: 'jotai' as const },
-      { regex: /useAtomValue\s*\(/g, type: 'jotai' as const },
-      { regex: /useSetAtom\s*\(/g, type: 'jotai' as const },
-      { regex: /useSelector\s*[<(]/g, type: 'redux' as const },
-      { regex: /useDispatch\s*[<(]/g, type: 'redux' as const },
-      { regex: /useStore\s*[<(]/g, type: 'redux' as const },
-    ];
-
     lines.forEach((line, index) => {
-      for (const pattern of patterns) {
+      for (const pattern of STATE_PATTERNS) {
+        pattern.regex.lastIndex = 0;
         const matches = line.match(pattern.regex);
         if (matches) {
-          matches.forEach(match => {
+          matches.forEach((match) => {
             usages.push({
               type: pattern.type,
               name: match.replace(/\s*[<(]/, ''),
@@ -144,6 +174,10 @@ export class StateAnalyzer {
     return /^[A-Z]/.test(name);
   }
 
+  private isCustomHookName(name: string): boolean {
+    return /^use[A-Z]/.test(name);
+  }
+
   private hasJsxReturn(code: string): boolean {
     return /<[A-Z]|<[a-z]+[\s>]|<>/.test(code);
   }
@@ -155,5 +189,4 @@ export class StateAnalyzer {
     }
     return counts;
   }
-
 }

@@ -4,11 +4,20 @@ import chalk from 'chalk';
 import * as fs from 'fs';
 import * as path from 'path';
 import { StateAnalyzer } from './analyzer';
-import { AnalysisResult, ComponentInfo } from './types';
+import {
+  AnalysisResult,
+  ComponentInfo,
+  CustomHookInfo,
+  ComplexityGrade,
+  Suggestion,
+} from './types';
 
 const program = new Command();
 
-program.name('state-analyzer').description('CLI tool for analyzing React state management patterns').version('0.2.1');
+program
+  .name('state-analyzer')
+  .description('CLI tool for analyzing React state management patterns')
+  .version('0.3.0');
 
 program
   .command('analyze')
@@ -16,63 +25,123 @@ program
   .argument('<path>', 'Directory path to analyze')
   .option('-o, --output <file>', 'Output file path for JSON results')
   .option('-v, --verbose', 'Verbose output')
-  .action((targetPath: string, options: { output?: string; verbose?: boolean }) => {
-    console.log(chalk.blue('\nStarting state analysis...\n'));
+  .option('-t, --threshold <grade>', 'Fail if project complexity exceeds grade (A/B/C/D/F)')
+  .action(
+    (targetPath: string, options: { output?: string; verbose?: boolean; threshold?: string }) => {
+      console.log(chalk.blue('\nStarting state analysis...\n'));
 
-    const analyzer = new StateAnalyzer();
-    const result = analyzer.analyze(targetPath);
+      const analyzer = new StateAnalyzer();
+      const result = analyzer.analyze(targetPath);
 
-    printSummary(result);
-    printTopComponents(result);
+      printSummary(result);
+      printComplexity(result);
+      printTopComponents(result);
 
-    if (options.verbose) {
-      printDetails(result);
-    }
+      if (result.customHooks.length > 0) {
+        printCustomHooks(result.customHooks);
+      }
 
-    if (options.output) {
-      saveResult(result, options.output);
-    }
-  });
+      if (result.suggestions.length > 0) {
+        printSuggestions(result.suggestions);
+      }
+
+      if (options.verbose) {
+        printDetails(result);
+      }
+
+      if (options.output) {
+        saveResult(result, options.output);
+      }
+
+      if (options.threshold) {
+        const exitCode = checkThreshold(result, options.threshold);
+        process.exit(exitCode);
+      }
+    },
+  );
+
+const TYPE_LABELS: Record<string, string> = {
+  useState: 'useState',
+  useContext: 'useContext',
+  useReducer: 'useReducer',
+  zustand: 'Zustand',
+  jotai: 'Jotai',
+  redux: 'Redux',
+  mobx: 'MobX',
+  recoil: 'Recoil',
+  valtio: 'Valtio',
+  'tanstack-query': 'TanStack Query',
+  swr: 'SWR',
+};
+
+const GRADE_COLORS: Record<ComplexityGrade, (text: string) => string> = {
+  A: chalk.green,
+  B: chalk.cyan,
+  C: chalk.yellow,
+  D: chalk.hex('#FFA500'),
+  F: chalk.red,
+};
+
+const GRADE_ORDER: ComplexityGrade[] = ['A', 'B', 'C', 'D', 'F'];
 
 function printSummary(result: AnalysisResult): void {
   console.log(chalk.bold('=== Analysis Summary ===\n'));
 
-  const componentsWithState = result.components.filter(c => c.stateUsages.length > 0).length;
-  const percentage = result.summary.totalComponents > 0
-    ? ((componentsWithState / result.summary.totalComponents) * 100).toFixed(1)
-    : '0';
+  const componentsWithState = result.components.filter((c) => c.stateUsages.length > 0).length;
+  const percentage =
+    result.summary.totalComponents > 0
+      ? ((componentsWithState / result.summary.totalComponents) * 100).toFixed(1)
+      : '0';
 
   console.log(`Total components: ${chalk.cyan(result.summary.totalComponents)}`);
   console.log(`Components with state: ${chalk.cyan(componentsWithState)} (${percentage}%)`);
   console.log(`Total state usage: ${chalk.cyan(result.summary.totalStateUsages)}`);
 
-  const average = componentsWithState > 0
-    ? (result.summary.totalStateUsages / componentsWithState).toFixed(1)
-    : '0';
-  console.log(`Average: ${chalk.cyan(average)} states/component\n`);
+  const average =
+    componentsWithState > 0
+      ? (result.summary.totalStateUsages / componentsWithState).toFixed(1)
+      : '0';
+  console.log(`Average: ${chalk.cyan(average)} states/component`);
+
+  if (result.customHooks.length > 0) {
+    console.log(`Custom hooks: ${chalk.cyan(result.customHooks.length)}`);
+  }
+  console.log('');
 
   console.log('Usage by type:');
-  const typeLabels: Record<string, string> = {
-    useState: 'useState',
-    useContext: 'useContext',
-    useReducer: 'useReducer',
-    zustand: 'zustand',
-    jotai: 'jotai',
-    redux: 'redux',
-  };
-
   for (const [type, count] of Object.entries(result.summary.byType)) {
-    const label = typeLabels[type] || type;
+    const label = TYPE_LABELS[type] || type;
     console.log(`  ${label}: ${chalk.yellow(count)}`);
   }
   console.log('');
 
-  // State distribution
   console.log('State distribution:');
   const distribution = calculateDistribution(result.components);
   for (const [range, count] of Object.entries(distribution)) {
     const bar = '█'.repeat(Math.min(count, 20));
     console.log(`  ${range.padEnd(12)} ${chalk.cyan(bar)} ${chalk.gray(`(${count})`)}`);
+  }
+  console.log('');
+}
+
+function printComplexity(result: AnalysisResult): void {
+  const complexity = result.summary.complexity;
+  if (!complexity) return;
+
+  console.log(chalk.bold('=== Complexity ===\n'));
+
+  const colorFn = GRADE_COLORS[complexity.grade];
+  console.log(
+    `Project grade: ${colorFn(chalk.bold(complexity.grade))} (score: ${complexity.averageScore.toFixed(1)})`,
+  );
+  console.log('');
+
+  console.log('Component grades:');
+  for (const grade of GRADE_ORDER) {
+    const count = complexity.componentGrades[grade];
+    if (count === 0) continue;
+    const bar = '█'.repeat(Math.min(count, 20));
+    console.log(`  ${GRADE_COLORS[grade](grade)} ${chalk.cyan(bar)} ${chalk.gray(`(${count})`)}`);
   }
   console.log('');
 }
@@ -103,19 +172,60 @@ function printDetails(result: AnalysisResult): void {
   for (const comp of result.components) {
     if (comp.stateUsages.length === 0) continue;
 
-    console.log(chalk.green(`${comp.name}`), chalk.gray(`(${comp.file})`));
+    const gradeStr = comp.complexity
+      ? ` [${GRADE_COLORS[comp.complexity.grade](comp.complexity.grade)}]`
+      : '';
+    console.log(chalk.green(`${comp.name}`) + gradeStr, chalk.gray(`(${comp.file})`));
     for (const usage of comp.stateUsages) {
-      console.log(`  - ${usage.type}: ${chalk.gray(`line ${usage.line}`)}`);
+      const label = TYPE_LABELS[usage.type] || usage.type;
+      console.log(`  - ${label}: ${chalk.gray(`line ${usage.line}`)}`);
     }
     console.log('');
   }
+}
+
+function printCustomHooks(hooks: CustomHookInfo[]): void {
+  console.log(chalk.bold('=== Custom Hooks ===\n'));
+
+  for (const hook of hooks) {
+    const typeCounts: Record<string, number> = {};
+    hook.internalStateUsages.forEach((u) => {
+      typeCounts[u.type] = (typeCounts[u.type] || 0) + 1;
+    });
+
+    const summary = Object.entries(typeCounts)
+      .map(([type, count]) => `${TYPE_LABELS[type] || type}(${count})`)
+      .join(', ');
+
+    console.log(
+      `  ${chalk.magenta(hook.name)} ${chalk.gray(`(${hook.file})`)} — ${chalk.yellow(summary)}`,
+    );
+  }
+  console.log('');
+}
+
+function printSuggestions(suggestions: Suggestion[]): void {
+  console.log(chalk.bold('=== Suggestions ===\n'));
+
+  const icons: Record<string, string> = {
+    warning: chalk.yellow('!'),
+    info: chalk.blue('i'),
+    improvement: chalk.green('*'),
+  };
+
+  for (const s of suggestions) {
+    const icon = icons[s.type] || '-';
+    console.log(`  ${icon} ${chalk.white(s.component)} ${chalk.gray(`(${s.file})`)}`);
+    console.log(`    ${s.message}`);
+  }
+  console.log('');
 }
 
 function printTopComponents(result: AnalysisResult): void {
   console.log(chalk.bold('=== Top 10 Components ===\n'));
 
   const sorted = [...result.components]
-    .filter(c => c.stateUsages.length > 0)
+    .filter((c) => c.stateUsages.length > 0)
     .sort((a, b) => b.stateUsages.length - a.stateUsages.length)
     .slice(0, 10);
 
@@ -126,17 +236,49 @@ function printTopComponents(result: AnalysisResult): void {
 
   sorted.forEach((comp, index) => {
     const patternCounts: Record<string, number> = {};
-    comp.stateUsages.forEach(usage => {
+    comp.stateUsages.forEach((usage) => {
       patternCounts[usage.type] = (patternCounts[usage.type] || 0) + 1;
     });
 
     const patterns = Object.entries(patternCounts)
-      .map(([type, count]) => `${type}(${count})`)
+      .map(([type, count]) => `${TYPE_LABELS[type] || type}(${count})`)
       .join(', ');
 
-    console.log(`${chalk.cyan((index + 1).toString().padStart(2))}. ${chalk.green(comp.name)} ${chalk.gray(`(${comp.stateUsages.length} states)`)} - ${chalk.gray(comp.file)}`);
+    const gradeStr = comp.complexity
+      ? ` ${GRADE_COLORS[comp.complexity.grade](comp.complexity.grade)}`
+      : '';
+
+    console.log(
+      `${chalk.cyan((index + 1).toString().padStart(2))}. ${chalk.green(comp.name)}${gradeStr} ${chalk.gray(`(${comp.stateUsages.length} states)`)} - ${chalk.gray(comp.file)}`,
+    );
     console.log(`    ${chalk.yellow(patterns)}\n`);
   });
+}
+
+function checkThreshold(result: AnalysisResult, threshold: string): number {
+  const grade = threshold.toUpperCase() as ComplexityGrade;
+  if (!GRADE_ORDER.includes(grade)) {
+    console.log(chalk.red(`Invalid threshold grade: ${threshold}. Use A, B, C, D, or F.\n`));
+    return 1;
+  }
+
+  const projectGrade = result.summary.complexity?.grade || 'A';
+  const projectIdx = GRADE_ORDER.indexOf(projectGrade);
+  const thresholdIdx = GRADE_ORDER.indexOf(grade);
+
+  if (projectIdx > thresholdIdx) {
+    console.log(
+      chalk.red(
+        `Threshold check failed: project grade ${projectGrade} exceeds threshold ${grade}\n`,
+      ),
+    );
+    return 1;
+  }
+
+  console.log(
+    chalk.green(`Threshold check passed: project grade ${projectGrade} within ${grade}\n`),
+  );
+  return 0;
 }
 
 function saveResult(result: AnalysisResult, outputPath: string): void {
