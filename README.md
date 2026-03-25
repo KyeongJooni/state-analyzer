@@ -122,9 +122,56 @@ Component grades:
 | `--verbose` | `-v` | Show detailed component information |
 | `--threshold <grade>` | `-t` | Fail if project complexity exceeds grade (A/B/C/D/F) |
 
+## Use Cases
+
+### Code Review
+Identify components with excessive state that may benefit from refactoring:
+```bash
+state-analyzer analyze ./src --verbose
+```
+
+### Migration Planning
+Understand current patterns before migrating to a new state management solution:
+```bash
+state-analyzer analyze ./src --output before-migration.json
+```
+
+### CI/CD Integration
+Fail the build if state complexity exceeds a threshold:
+```bash
+state-analyzer analyze ./src --threshold C --output metrics.json
+```
+
+## JSON Export Format
+
+```json
+{
+  "summary": {
+    "totalComponents": 45,
+    "totalStateUsages": 87,
+    "byType": { "useState": 52, "zustand": 18 },
+    "complexity": { "averageScore": 8.3, "grade": "B" }
+  },
+  "components": [
+    {
+      "name": "UserDashboard",
+      "file": "src/pages/Dashboard.tsx",
+      "stateUsages": [...],
+      "complexity": { "score": 21, "grade": "D" }
+    }
+  ],
+  "customHooks": [...],
+  "suggestions": [...]
+}
+```
+
 ## Requirements
 
 - Node.js >= 16.0.0
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
@@ -135,3 +182,9 @@ Component grades:
 - [npm package](https://www.npmjs.com/package/react-state-analyzer)
 - [GitHub repository](https://github.com/KyeongJooni/react-state-analyzer)
 - [Issues](https://github.com/KyeongJooni/react-state-analyzer/issues)
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ by <a href="https://github.com/KyeongJooni">KyeongJooni</a></sub>
+</div>
