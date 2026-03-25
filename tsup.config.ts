@@ -9,4 +9,9 @@ export default defineConfig({
   sourcemap: true,
   target: 'node16',
   outDir: 'dist',
+  esbuildOptions(options) {
+    options.alias = {
+      '@': './src',
+    };
+  },
 });

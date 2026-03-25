@@ -1,4 +1,4 @@
-import { ComponentInfo, ComponentComplexity, ComplexityGrade, ProjectComplexity } from '../types';
+import { ComponentInfo, ComponentComplexity, ComplexityGrade, ProjectComplexity } from '@/types';
 
 export function computeComplexity(comp: ComponentInfo): ComponentComplexity {
   const stateCount = comp.stateUsages.length;

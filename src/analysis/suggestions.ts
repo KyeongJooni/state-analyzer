@@ -1,7 +1,7 @@
 import { SourceFile, SyntaxKind } from 'ts-morph';
 import * as path from 'path';
-import { ComponentInfo, Suggestion } from '../types';
-import { USE_STATE_DESTRUCTURE, USE_REDUCER_DESTRUCTURE } from './patterns';
+import { ComponentInfo, Suggestion } from '@/types';
+import { USE_STATE_DESTRUCTURE, USE_REDUCER_DESTRUCTURE } from '@/analysis/patterns';
 
 const SKIP_FILE_PATTERN =
   /(styled|styles|constants|types|utils|helpers|config|api|services)\.tsx?$/;

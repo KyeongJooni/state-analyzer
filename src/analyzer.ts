@@ -1,9 +1,9 @@
 import { Project, SourceFile, SyntaxKind } from 'ts-morph';
 import * as path from 'path';
-import { StateUsage, ComponentInfo, CustomHookInfo, AnalysisResult, Suggestion } from './types';
-import { STATE_PATTERNS } from './analysis/patterns';
-import { computeComplexity, computeProjectComplexity } from './analysis/complexity';
-import { detectUnusedState, detectRerenderRisks } from './analysis/suggestions';
+import { StateUsage, ComponentInfo, CustomHookInfo, AnalysisResult, Suggestion } from '@/types';
+import { STATE_PATTERNS } from '@/analysis/patterns';
+import { computeComplexity, computeProjectComplexity } from '@/analysis/complexity';
+import { detectUnusedState, detectRerenderRisks } from '@/analysis/suggestions';
 
 const SKIP_FILE_PATTERN =
   /(styled|styles|constants|types|utils|helpers|config|api|services)\.tsx?$/;
