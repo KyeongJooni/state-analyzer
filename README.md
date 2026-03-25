@@ -27,52 +27,44 @@
 
 ## Overview
 
-React State Analyzer helps you understand and optimize state management in your React applications. Get instant insights into how your components use state, identify complexity hotspots, and make informed architectural decisions.
-
-**Perfect for:**
-- 🔍 Code reviews and refactoring
-- 📊 Architecture analysis and documentation
-- 🚀 Migration planning between state management solutions
-- 👥 Team onboarding and knowledge sharing
+React State Analyzer statically analyzes your React codebase to provide insights into state management patterns, complexity hotspots, and potential anti-patterns.
 
 ## Features
 
-- ⚡ **TypeScript AST Parsing** - Static analysis of React codebases
-- 🎯 **Multi-Library Support** - Detects useState, useContext, useReducer, Redux, Zustand, and Jotai
-- 📈 **Statistical Analysis** - Distribution charts and component rankings
-- 💾 **JSON Export** - Save analysis data for further processing
-- 🎨 **Color-Coded Output** - Terminal display with syntax highlighting
+- **11 Library Support** - React hooks, Redux, Zustand, Jotai, MobX, Recoil, Valtio, TanStack Query, SWR
+- **Custom Hook Analysis** - Detects custom hook definitions and their internal state usage
+- **Complexity Scoring** - A~F grade per component and project-wide average
+- **Unused State Detection** - Warns about declared but never-used state variables
+- **Re-render Risk Detection** - Flags anti-patterns like excessive hooks or library mixing
+- **JSON Export** - Save analysis results for CI/CD integration
+- **Threshold Check** - `--threshold` option for CI gate (exit code 1 on failure)
 
 ## Installation
 
 ```bash
 npm install -g react-state-analyzer
+# or
+yarn global add react-state-analyzer
+# or
+pnpm add -g react-state-analyzer
+# or
+bun add -g react-state-analyzer
 ```
 
-Or use directly with npx:
+## Usage
 
 ```bash
-npx react-state-analyzer analyze <path>
-```
-
-## Quick Start
-
-Analyze your React project:
-
-```bash
+# Basic analysis
 state-analyzer analyze ./src
-```
 
-Get detailed insights with verbose mode:
-
-```bash
+# Verbose output with component details
 state-analyzer analyze ./src --verbose
-```
 
-Export results for further processing:
-
-```bash
+# Export results to JSON
 state-analyzer analyze ./src --output analysis.json
+
+# CI gate: fail if project complexity exceeds grade C
+state-analyzer analyze ./src --threshold C
 ```
 
 ## Example Output
@@ -86,24 +78,35 @@ Total components: 45
 Components with state: 28 (62.2%)
 Total state usage: 87
 Average: 3.1 states/component
+Custom hooks: 5
 
 Usage by type:
   useState: 52
-  redux: 23
-  zustand: 18
+  Redux: 23
+  Zustand: 18
   useContext: 12
-  jotai: 5
+  TanStack Query: 8
+  Jotai: 5
 
-State distribution:
-  1-2 states   ████████████ (18)
-  3-5 states   ████████ (8)
-  6-10 states  ██ (2)
-  11+ states    (0)
+=== Complexity ===
+
+Project grade: B (score: 8.3)
+
+Component grades:
+  A ████████████████ (16)
+  B ████████ (8)
+  C ██ (2)
+  D █ (1)
 
 === Top 10 Components ===
 
- 1. UserDashboard (8 states) - src/pages/Dashboard.tsx
-    useState(5), zustand(2), useContext(1)
+ 1. UserDashboard D (8 states) - src/pages/Dashboard.tsx
+    useState(3), Redux(2), Zustand(2), useContext(1)
+
+=== Suggestions ===
+
+  ! UserDashboard (src/pages/Dashboard.tsx)
+    8 state hooks detected — consider grouping related state with useReducer or extracting to a custom hook
 ```
 
 ## Supported State Patterns
@@ -114,6 +117,11 @@ State distribution:
 | **Redux** | `useSelector`, `useDispatch`, `useStore` |
 | **Zustand** | `use*Store()` patterns |
 | **Jotai** | `useAtom`, `useAtomValue`, `useSetAtom` |
+| **MobX** | `observer`, `useLocalObservable` |
+| **Recoil** | `useRecoilState`, `useRecoilValue`, `useSetRecoilState` |
+| **Valtio** | `useSnapshot` |
+| **TanStack Query** | `useQuery`, `useMutation`, `useInfiniteQuery`, `useSuspenseQuery` |
+| **SWR** | `useSWR`, `useSWRMutation` |
 
 ## CLI Options
 
@@ -122,80 +130,18 @@ State distribution:
 | `<path>` | - | Directory to analyze (required) |
 | `--output <file>` | `-o` | Save results as JSON |
 | `--verbose` | `-v` | Show detailed component information |
-
-## Use Cases
-
-### Code Review
-Identify components with excessive state that may benefit from refactoring:
-```bash
-state-analyzer analyze ./src --verbose | grep "11+ states"
-```
-
-### Migration Planning
-Understand current patterns before migrating to a new state management solution:
-```bash
-state-analyzer analyze ./src --output before-migration.json
-```
-
-### CI/CD Integration
-Track state complexity metrics over time:
-```bash
-state-analyzer analyze ./src --output metrics.json
-# Parse metrics.json in your CI pipeline
-```
-
-## JSON Export Format
-
-```json
-{
-  "summary": {
-    "totalComponents": 45,
-    "totalStateUsages": 87,
-    "byType": {
-      "useState": 52,
-      "zustand": 18,
-      "useContext": 12,
-      "jotai": 5
-    }
-  },
-  "components": [
-    {
-      "name": "ComponentName",
-      "file": "relative/path/to/file.tsx",
-      "stateUsages": [
-        {
-          "type": "useState",
-          "name": "useState",
-          "file": "relative/path/to/file.tsx",
-          "line": 15,
-          "component": "ComponentName"
-        }
-      ]
-    }
-  ]
-}
-```
+| `--threshold <grade>` | `-t` | Fail if project complexity exceeds grade (A/B/C/D/F) |
 
 ## Requirements
 
 - Node.js >= 16.0.0
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 ## License
 
-[MIT](LICENSE) - feel free to use this project for any purpose.
+[MIT](LICENSE)
 
 ## Links
 
 - [npm package](https://www.npmjs.com/package/react-state-analyzer)
 - [GitHub repository](https://github.com/KyeongJooni/react-state-analyzer)
 - [Issues](https://github.com/KyeongJooni/react-state-analyzer/issues)
-
----
-
-<div align="center">
-  <sub>Built with ❤️ by <a href="https://github.com/KyeongJooni">KyeongJooni</a></sub>
-</div>
