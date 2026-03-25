@@ -55,6 +55,15 @@ state-analyzer analyze ./src --output analysis.json
 
 # CI gate: fail if project complexity exceeds grade C
 state-analyzer analyze ./src --threshold C
+
+# Markdown report (for PR descriptions)
+state-analyzer analyze ./src --format md
+
+# Mermaid dependency diagram
+state-analyzer analyze ./src --mermaid
+
+# Compare two analysis snapshots
+state-analyzer diff before.json after.json
 ```
 
 ## Example Output
@@ -115,12 +124,24 @@ Component grades:
 
 ## CLI Options
 
+### `state-analyzer analyze <path>`
+
 | Option | Alias | Description |
 |--------|-------|-------------|
 | `<path>` | - | Directory to analyze (required) |
 | `--output <file>` | `-o` | Save results as JSON |
 | `--verbose` | `-v` | Show detailed component information |
 | `--threshold <grade>` | `-t` | Fail if project complexity exceeds grade (A/B/C/D/F) |
+| `--format <type>` | `-f` | Output format: `default`, `md` (markdown) |
+| `--mermaid` | - | Output Mermaid diagram of component-state dependencies |
+
+### `state-analyzer diff <before> <after>`
+
+Compare two analysis JSON files and show changes:
+
+```bash
+state-analyzer diff before.json after.json
+```
 
 ## Use Cases
 
