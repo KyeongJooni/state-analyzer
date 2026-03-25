@@ -19,7 +19,6 @@ lerna-debug.log*
 Thumbs.db
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
@@ -33,6 +32,18 @@ coverage/
 .env
 .env.local
 .env.*.local
+
+# Yarn
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# Claude
+.claude/
+CLAUDE.md
 
 # Misc
 *.cache

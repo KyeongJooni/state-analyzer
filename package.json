@@ -1,6 +1,6 @@
 {
   "name": "react-state-analyzer",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "CLI tool for analyzing React state management patterns",
   "author": "KyeongJooni",
   "license": "MIT",
@@ -16,7 +16,14 @@
     "zustand",
     "jotai",
     "context",
-    "useState"
+    "useState",
+    "redux",
+    "mobx",
+    "recoil",
+    "valtio",
+    "tanstack-query",
+    "swr",
+    "complexity"
   ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -44,7 +51,13 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "prepublishOnly": "npm run build"
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "test": "vitest run --config vitest.config.ts",
+    "test:watch": "vitest --config vitest.config.ts",
+    "prepublishOnly": "yarn build"
   },
   "dependencies": {
     "chalk": "4",
@@ -52,9 +65,17 @@
     "ts-morph": "^27.0.2"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^20.0.0",
+    "@types/react": "^19.2.14",
+    "eslint": "^10.1.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "prettier": "^3.8.1",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.2",
+    "vitest": "^4.1.1"
   },
   "engines": {
     "node": ">=16.0.0"
