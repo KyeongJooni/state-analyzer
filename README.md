@@ -10,7 +10,7 @@
 [![license](https://img.shields.io/npm/l/state-analyzer.svg)](https://github.com/KyeongJooni/state-analyzer/blob/main/LICENSE)
 [![node version](https://img.shields.io/node/v/state-analyzer.svg)](https://nodejs.org)
 
-[Homepage](https://kyeongjooni.github.io/react-state-analyzer/) · [npm](https://www.npmjs.com/package/state-analyzer) · [Issues](https://github.com/KyeongJooni/state-analyzer/issues) · [한국어](README.ko.md)
+[Homepage](https://kyeongjooni.github.io/state-analyzer/) · [npm](https://www.npmjs.com/package/state-analyzer) · [한국어](README.ko.md)
 
 </div>
 
@@ -130,7 +130,7 @@ Create `.stateanalyzerrc.json` via `state-analyzer init`, or manually:
 }
 ```
 
-For full documentation, visit the [Homepage](https://kyeongjooni.github.io/react-state-analyzer/).
+For full documentation, visit the [Homepage](https://kyeongjooni.github.io/state-analyzer/).
 
 ## Requirements
 

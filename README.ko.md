@@ -10,7 +10,7 @@
 [![license](https://img.shields.io/npm/l/state-analyzer.svg)](https://github.com/KyeongJooni/state-analyzer/blob/main/LICENSE)
 [![node version](https://img.shields.io/node/v/state-analyzer.svg)](https://nodejs.org)
 
-[홈페이지](https://kyeongjooni.github.io/react-state-analyzer/) · [npm](https://www.npmjs.com/package/state-analyzer) · [이슈](https://github.com/KyeongJooni/state-analyzer/issues) · [English](README.md)
+[홈페이지](https://kyeongjooni.github.io/state-analyzer/) · [npm](https://www.npmjs.com/package/state-analyzer) · [English](README.md)
 
 </div>
 
@@ -130,7 +130,7 @@ Component grades:
 }
 ```
 
-자세한 문서는 [홈페이지](https://kyeongjooni.github.io/react-state-analyzer/)를 참고하세요.
+자세한 문서는 [홈페이지](https://kyeongjooni.github.io/state-analyzer/)를 참고하세요.
 
 ## 요구사항
 
