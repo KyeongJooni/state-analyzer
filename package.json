@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/KyeongJooni/react-state-analyzer.git"
+    "url": "https://github.com/KyeongJooni/state-analyzer.git"
   },
   "keywords": [
     "react",
