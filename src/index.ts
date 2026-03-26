@@ -26,7 +26,7 @@ const program = new Command();
 program
   .name('state-analyzer')
   .description('Analyze Frontend state management patterns')
-  .version('0.6.0');
+  .version('0.6.1');
 
 program
   .command('analyze')
