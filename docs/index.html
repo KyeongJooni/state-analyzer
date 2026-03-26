@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>State Analyzer — Analyze your React/Next.js state management</title>
+  <meta name="description" content="Analyze React/Next.js state management patterns. Supports 11 libraries, complexity scoring, server/client detection, and more." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav__inner">
+      <a href="#" class="nav__logo">
+        <span class="nav__icon">&#9670;</span> state-analyzer
+      </a>
+      <div class="nav__links">
+        <a href="#features">Features</a>
+        <a href="#libraries">Libraries</a>
+        <a href="#usage">Usage</a>
+        <a href="https://github.com/KyeongJooni/react-state-analyzer" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.npmjs.com/package/state-analyzer" target="_blank" rel="noopener" class="nav__badge">npm</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero__bg"></div>
+    <div class="hero__content">
+      <div class="hero__badge">v0.6.0 &mdash; React &amp; Next.js supported</div>
+      <h1 class="hero__title">
+        Understand your<br /><span class="hero__accent">state management</span>
+      </h1>
+      <p class="hero__desc">
+        Static analysis for React/Next.js codebases. Detect patterns, measure complexity,
+        and catch anti-patterns across 11 state management libraries.
+      </p>
+      <div class="hero__install">
+        <code>npm install -g state-analyzer</code>
+        <button class="hero__copy" onclick="navigator.clipboard.writeText('npm install -g state-analyzer')">Copy</button>
+      </div>
+      <div class="hero__actions">
+        <a href="#usage" class="btn btn--primary">Get Started</a>
+        <a href="https://github.com/KyeongJooni/react-state-analyzer" target="_blank" rel="noopener" class="btn btn--outline">View on GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Terminal Demo -->
+  <section class="demo">
+    <div class="container">
+      <div class="terminal">
+        <div class="terminal__bar">
+          <span class="terminal__dot terminal__dot--red"></span>
+          <span class="terminal__dot terminal__dot--yellow"></span>
+          <span class="terminal__dot terminal__dot--green"></span>
+          <span class="terminal__title">state-analyzer analyze ./src</span>
+        </div>
+        <pre class="terminal__body"><span class="t-blue">Starting state analysis...</span>
+
+<span class="t-bold">=== Analysis Summary ===</span>
+
+Total components: <span class="t-cyan">68</span>
+Components with state: <span class="t-cyan">12</span> (17.6%)
+Total state usage: <span class="t-cyan">20</span>
+Average: <span class="t-cyan">1.7</span> states/component
+Custom hooks: <span class="t-cyan">30</span>
+
+Usage by type:
+  useState: <span class="t-yellow">16</span>
+  Zustand: <span class="t-yellow">4</span>
+
+<span class="t-bold">=== Complexity ===</span>
+
+Project grade: <span class="t-green t-bold">A</span> (score: 1.1)
+
+Component grades:
+  <span class="t-green">A</span> <span class="t-cyan">████████████████████</span> <span class="t-dim">(64)</span>
+  <span class="t-cyan">B</span> <span class="t-cyan">██</span> <span class="t-dim">(2)</span>
+  <span class="t-yellow">C</span> <span class="t-cyan">██</span> <span class="t-dim">(2)</span>
+
+<span class="t-bold">=== Suggestions ===</span>
+
+  <span class="t-yellow">!</span> ToastProvider <span class="t-dim">(src/contexts/ToastContext.tsx)</span>
+    4 state hooks detected — consider extracting to a custom hook</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="features">
+    <div class="container">
+      <h2 class="section__title">Features</h2>
+      <div class="features__grid">
+        <div class="feature-card">
+          <div class="feature-card__icon">&#128269;</div>
+          <h3>11 Library Support</h3>
+          <p>React hooks, Redux, Zustand, Jotai, MobX, Recoil, Valtio, TanStack Query, SWR &mdash; all detected automatically.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">&#9889;</div>
+          <h3>Custom Hook Analysis</h3>
+          <p>Detects custom hook definitions and traces what state management patterns they use internally.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">&#127942;</div>
+          <h3>Complexity Scoring</h3>
+          <p>A~F grade per component and project-wide. Use <code>--threshold</code> as a CI gate.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">&#9888;</div>
+          <h3>Anti-pattern Detection</h3>
+          <p>Warns about unused state, excessive hooks, library mixing, and useContext overuse.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">&#128202;</div>
+          <h3>Multiple Output Formats</h3>
+          <p>Terminal, Markdown tables, Mermaid diagrams, and JSON export for CI pipelines.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">&#128268;</div>
+          <h3>Plugin System</h3>
+          <p>Register custom state patterns for internal libraries via <code>.stateanalyzerrc.json</code>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Supported Libraries -->
+  <section id="libraries" class="libraries">
+    <div class="container">
+      <h2 class="section__title">Supported Libraries</h2>
+      <div class="libraries__grid">
+        <div class="lib-tag">React Hooks</div>
+        <div class="lib-tag">Redux</div>
+        <div class="lib-tag">Zustand</div>
+        <div class="lib-tag">Jotai</div>
+        <div class="lib-tag">MobX</div>
+        <div class="lib-tag">Recoil</div>
+        <div class="lib-tag">Valtio</div>
+        <div class="lib-tag">TanStack Query</div>
+        <div class="lib-tag">SWR</div>
+        <div class="lib-tag lib-tag--plus">+ Plugins</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Usage -->
+  <section id="usage" class="usage">
+    <div class="container">
+      <h2 class="section__title">Usage</h2>
+      <div class="usage__grid">
+        <div class="usage-card">
+          <h3>Install</h3>
+          <pre><code>npm install -g state-analyzer
+<span class="t-dim"># or yarn global add react-state-analyzer</span></code></pre>
+        </div>
+        <div class="usage-card">
+          <h3>Initialize</h3>
+          <pre><code>state-analyzer init</code></pre>
+        </div>
+        <div class="usage-card">
+          <h3>Analyze</h3>
+          <pre><code>state-analyzer analyze ./src</code></pre>
+        </div>
+        <div class="usage-card">
+          <h3>CI Gate</h3>
+          <pre><code>state-analyzer analyze ./src --threshold C</code></pre>
+        </div>
+        <div class="usage-card">
+          <h3>Markdown Report</h3>
+          <pre><code>state-analyzer analyze ./src --format md</code></pre>
+        </div>
+        <div class="usage-card">
+          <h3>Mermaid Diagram</h3>
+          <pre><code>state-analyzer analyze ./src --mermaid</code></pre>
+        </div>
+        <div class="usage-card">
+          <h3>Diff Mode</h3>
+          <pre><code>state-analyzer diff before.json after.json</code></pre>
+        </div>
+        <div class="usage-card">
+          <h3>Watch Mode</h3>
+          <pre><code>state-analyzer watch ./src</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p>Built by <a href="https://github.com/KyeongJooni" target="_blank" rel="noopener">KyeongJooni</a></p>
+      <div class="footer__links">
+        <a href="https://www.npmjs.com/package/state-analyzer" target="_blank" rel="noopener">npm</a>
+        <a href="https://github.com/KyeongJooni/react-state-analyzer" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/KyeongJooni/react-state-analyzer/issues" target="_blank" rel="noopener">Issues</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
