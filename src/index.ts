@@ -25,8 +25,8 @@ const program = new Command();
 
 program
   .name('state-analyzer')
-  .description('CLI tool for analyzing React state management patterns')
-  .version('0.5.2');
+  .description('Analyze React/Next.js state management patterns')
+  .version('0.6.0');
 
 program
   .command('analyze')
@@ -159,6 +159,14 @@ function printSummary(result: AnalysisResult): void {
 
   if (result.customHooks.length > 0) {
     console.log(`Custom hooks: ${chalk.cyan(result.customHooks.length)}`);
+  }
+
+  const clientComps = result.components.filter((c) => c.environment === 'client').length;
+  const serverComps = result.components.filter((c) => c.environment === 'server').length;
+  if (clientComps > 0 || serverComps > 0) {
+    console.log(
+      `Environment: ${chalk.cyan(clientComps)} client / ${chalk.cyan(serverComps)} server`,
+    );
   }
   console.log('');
 

@@ -1,15 +1,15 @@
 <div align="center">
 
-# React State Analyzer
+# State Analyzer
 
 <p align="center">
-  <strong>CLI tool for analyzing React state management patterns</strong>
+  <strong>Analyze React/Next.js state management patterns</strong>
 </p>
 
-[![npm version](https://img.shields.io/npm/v/react-state-analyzer.svg)](https://www.npmjs.com/package/react-state-analyzer)
-[![npm downloads](https://img.shields.io/npm/dm/react-state-analyzer.svg)](https://www.npmjs.com/package/react-state-analyzer)
-[![license](https://img.shields.io/npm/l/react-state-analyzer.svg)](https://github.com/KyeongJooni/react-state-analyzer/blob/main/LICENSE)
-[![node version](https://img.shields.io/node/v/react-state-analyzer.svg)](https://nodejs.org)
+[![npm version](https://img.shields.io/npm/v/state-analyzer.svg)](https://www.npmjs.com/package/state-analyzer)
+[![npm downloads](https://img.shields.io/npm/dm/state-analyzer.svg)](https://www.npmjs.com/package/state-analyzer)
+[![license](https://img.shields.io/npm/l/state-analyzer.svg)](https://github.com/KyeongJooni/state-analyzer/blob/main/LICENSE)
+[![node version](https://img.shields.io/node/v/state-analyzer.svg)](https://nodejs.org)
 
 </div>
 
@@ -17,11 +17,12 @@
 
 ## Overview
 
-React State Analyzer statically analyzes your React codebase to provide insights into state management patterns, complexity hotspots, and potential anti-patterns.
+State Analyzer statically analyzes your React/Next.js codebase to provide insights into state management patterns, complexity hotspots, and potential anti-patterns. Supports server/client component detection for Next.js App Router.
 
 ## Features
 
 - **11 Library Support** - React hooks, Redux, Zustand, Jotai, MobX, Recoil, Valtio, TanStack Query, SWR
+- **Next.js Support** - Server/client component detection, route file classification, hook misuse warnings
 - **Custom Hook Analysis** - Detects custom hook definitions and their internal state usage
 - **Complexity Scoring** - A~F grade per component and project-wide average
 - **Unused State Detection** - Warns about declared but never-used state variables
@@ -38,13 +39,13 @@ React State Analyzer statically analyzes your React codebase to provide insights
 ## Installation
 
 ```bash
-npm install -g react-state-analyzer
+npm install -g state-analyzer
 # or
-yarn global add react-state-analyzer
+yarn global add state-analyzer
 # or
-pnpm add -g react-state-analyzer
+pnpm add -g state-analyzer
 # or
-bun add -g react-state-analyzer
+bun add -g state-analyzer
 ```
 
 ## Quick Start
@@ -138,7 +139,7 @@ Component grades:
 | **TanStack Query** | `useQuery`, `useMutation`, `useInfiniteQuery`, `useSuspenseQuery` |
 | **SWR** | `useSWR`, `useSWRMutation` |
 
-## CLI Options
+## Options
 
 ### `state-analyzer analyze <path>`
 
@@ -250,9 +251,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Links
 
-- [npm package](https://www.npmjs.com/package/react-state-analyzer)
-- [GitHub repository](https://github.com/KyeongJooni/react-state-analyzer)
-- [Issues](https://github.com/KyeongJooni/react-state-analyzer/issues)
+- [npm package](https://www.npmjs.com/package/state-analyzer)
+- [GitHub repository](https://github.com/KyeongJooni/state-analyzer)
+- [Issues](https://github.com/KyeongJooni/state-analyzer/issues)
 
 ---
 

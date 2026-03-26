@@ -1,7 +1,7 @@
 {
-  "name": "react-state-analyzer",
-  "version": "0.5.2",
-  "description": "CLI tool for analyzing React state management patterns",
+  "name": "state-analyzer",
+  "version": "0.6.0",
+  "description": "Analyze React/Next.js state management patterns",
   "author": "KyeongJooni",
   "license": "MIT",
   "repository": {
@@ -10,6 +10,7 @@
   },
   "keywords": [
     "react",
+    "nextjs",
     "state-management",
     "analysis",
     "cli",
@@ -23,7 +24,8 @@
     "valtio",
     "tanstack-query",
     "swr",
-    "complexity"
+    "complexity",
+    "server-components"
   ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

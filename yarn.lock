@@ -2358,29 +2358,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-state-analyzer@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "react-state-analyzer@workspace:."
-  dependencies:
-    "@eslint/js": "npm:^10.0.1"
-    "@types/node": "npm:^20.0.0"
-    "@types/react": "npm:^19.2.14"
-    chalk: "npm:4"
-    commander: "npm:^14.0.2"
-    eslint: "npm:^10.1.0"
-    eslint-config-prettier: "npm:^10.1.8"
-    eslint-plugin-unused-imports: "npm:^4.4.1"
-    prettier: "npm:^3.8.1"
-    ts-morph: "npm:^27.0.2"
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^5.9.3"
-    typescript-eslint: "npm:^8.57.2"
-    vitest: "npm:^4.1.1"
-  bin:
-    state-analyzer: ./dist/index.mjs
-  languageName: unknown
-  linkType: soft
-
 "readdirp@npm:^4.0.1":
   version: 4.1.2
   resolution: "readdirp@npm:4.1.2"
@@ -2639,6 +2616,29 @@ __metadata:
   checksum: 10c0/89a1416668f950236dd5ac9f9a6b2588e1b9b62b1b6ad8dff1bfc5d1a15dbf0aafc9b52d2226d00c28dffff212da464eaeebfc6b7578b9d180cef3e3782c5983
   languageName: node
   linkType: hard
+
+"state-analyzer@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "state-analyzer@workspace:."
+  dependencies:
+    "@eslint/js": "npm:^10.0.1"
+    "@types/node": "npm:^20.0.0"
+    "@types/react": "npm:^19.2.14"
+    chalk: "npm:4"
+    commander: "npm:^14.0.2"
+    eslint: "npm:^10.1.0"
+    eslint-config-prettier: "npm:^10.1.8"
+    eslint-plugin-unused-imports: "npm:^4.4.1"
+    prettier: "npm:^3.8.1"
+    ts-morph: "npm:^27.0.2"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^5.9.3"
+    typescript-eslint: "npm:^8.57.2"
+    vitest: "npm:^4.1.1"
+  bin:
+    state-analyzer: ./dist/index.mjs
+  languageName: unknown
+  linkType: soft
 
 "std-env@npm:^4.0.0-rc.1":
   version: 4.0.0
