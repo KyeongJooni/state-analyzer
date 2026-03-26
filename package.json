@@ -1,7 +1,7 @@
 {
   "name": "state-analyzer",
   "version": "0.6.0",
-  "description": "Analyze React/Next.js state management patterns",
+  "description": "Analyze Frontend state management patterns",
   "author": "KyeongJooni",
   "license": "MIT",
   "repository": {

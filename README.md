@@ -3,7 +3,7 @@
 # State Analyzer
 
 <p align="center">
-  <strong>Analyze React/Next.js state management patterns</strong>
+  <strong>Analyze Frontend state management patterns</strong>
 </p>
 
 [![npm version](https://img.shields.io/npm/v/state-analyzer.svg)](https://www.npmjs.com/package/state-analyzer)
@@ -17,7 +17,7 @@
 
 ---
 
-Static analysis for React/Next.js codebases. Detect state management patterns, measure complexity, and catch anti-patterns across 11 libraries.
+Static analysis for Frontend codebases. Detect state management patterns, measure complexity, and catch anti-patterns across 11 libraries.
 
 ## Install
 

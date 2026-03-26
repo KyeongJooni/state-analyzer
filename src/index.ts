@@ -25,7 +25,7 @@ const program = new Command();
 
 program
   .name('state-analyzer')
-  .description('Analyze React/Next.js state management patterns')
+  .description('Analyze Frontend state management patterns')
   .version('0.6.0');
 
 program
