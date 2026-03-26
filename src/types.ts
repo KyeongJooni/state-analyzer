@@ -13,6 +13,9 @@ export type StateType =
 
 export type ComplexityGrade = 'A' | 'B' | 'C' | 'D' | 'F';
 
+export type ComponentEnvironment = 'client' | 'server' | 'unknown';
+export type NextRouteType = 'page' | 'layout' | 'loading' | 'error' | 'route' | 'none';
+
 export interface StateUsage {
   type: StateType;
   name: string;
@@ -35,6 +38,8 @@ export interface ComponentInfo {
   stateUsages: StateUsage[];
   children: string[];
   complexity?: ComponentComplexity;
+  environment?: ComponentEnvironment;
+  nextRouteType?: NextRouteType;
 }
 
 export interface CustomHookInfo {

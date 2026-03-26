@@ -6,6 +6,7 @@ import { STATE_PATTERNS, StatePattern } from '@/analysis/patterns';
 import { computeComplexity, computeProjectComplexity } from '@/analysis/complexity';
 import { detectUnusedState, detectRerenderRisks } from '@/analysis/suggestions';
 import { UserConfig, resolvePluginPatterns } from '@/config';
+import { detectEnvironment, detectRouteType, detectServerComponentHookUsage } from '@/analysis/nextjs';
 
 const SKIP_FILE_PATTERN =
   /(styled|styles|constants|types|utils|helpers|config|api|services)\.tsx?$/;
@@ -42,7 +43,14 @@ export class StateAnalyzer {
     const suggestions: Suggestion[] = [];
 
     for (const sourceFile of sourceFiles) {
+      const env = detectEnvironment(sourceFile);
+      const routeType = detectRouteType(sourceFile.getFilePath());
+
       const fileComponents = this.analyzeFile(sourceFile);
+      for (const comp of fileComponents) {
+        comp.environment = env;
+        comp.nextRouteType = routeType;
+      }
       components.push(...fileComponents);
       fileComponents.forEach((comp) => allUsages.push(...comp.stateUsages));
 
@@ -53,6 +61,7 @@ export class StateAnalyzer {
     for (const comp of components) {
       comp.complexity = computeComplexity(comp);
       suggestions.push(...detectRerenderRisks(comp));
+      suggestions.push(...detectServerComponentHookUsage(comp));
     }
 
     return {
