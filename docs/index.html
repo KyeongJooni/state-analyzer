@@ -22,6 +22,7 @@
         <a href="#features">Features</a>
         <a href="#libraries">Libraries</a>
         <a href="#usage">Usage</a>
+        <a href="#options">Options</a>
         <a href="https://github.com/KyeongJooni/react-state-analyzer" target="_blank" rel="noopener">GitHub</a>
         <a href="https://www.npmjs.com/package/state-analyzer" target="_blank" rel="noopener" class="nav__badge">npm</a>
       </div>
@@ -158,7 +159,7 @@ Component grades:
         <div class="usage-card">
           <h3>Install</h3>
           <pre><code>npm install -g state-analyzer
-<span class="t-dim"># or yarn global add react-state-analyzer</span></code></pre>
+<span class="t-dim"># or yarn global add state-analyzer</span></code></pre>
         </div>
         <div class="usage-card">
           <h3>Initialize</h3>
@@ -188,6 +189,109 @@ Component grades:
           <h3>Watch Mode</h3>
           <pre><code>state-analyzer watch ./src</code></pre>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Options -->
+  <section id="options" class="options">
+    <div class="container">
+      <h2 class="section__title">Options</h2>
+
+      <h3 class="subsection__title">state-analyzer analyze &lt;path&gt;</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Option</th><th>Alias</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>&lt;path&gt;</code></td><td>-</td><td>Directory to analyze (required)</td></tr>
+            <tr><td><code>--output &lt;file&gt;</code></td><td><code>-o</code></td><td>Save results as JSON</td></tr>
+            <tr><td><code>--verbose</code></td><td><code>-v</code></td><td>Show detailed component information</td></tr>
+            <tr><td><code>--threshold &lt;grade&gt;</code></td><td><code>-t</code></td><td>Fail if project complexity exceeds grade (A/B/C/D/F)</td></tr>
+            <tr><td><code>--format &lt;type&gt;</code></td><td><code>-f</code></td><td>Output format: default, md (markdown)</td></tr>
+            <tr><td><code>--mermaid</code></td><td>-</td><td>Output Mermaid diagram</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="subsection__title">state-analyzer diff &lt;before&gt; &lt;after&gt;</h3>
+      <p class="options__desc">Compare two analysis JSON files and show added/removed/changed components, type deltas, and complexity changes.</p>
+
+      <h3 class="subsection__title">state-analyzer watch &lt;path&gt;</h3>
+      <p class="options__desc">Watch for file changes and re-analyze automatically with debounced updates.</p>
+
+      <h3 class="subsection__title">state-analyzer init</h3>
+      <p class="options__desc">Generate a <code>.stateanalyzerrc.json</code> config file with sensible defaults.</p>
+    </div>
+  </section>
+
+  <!-- Configuration -->
+  <section id="config" class="config">
+    <div class="container">
+      <h2 class="section__title">Configuration</h2>
+      <p class="config__desc">Create a <code>.stateanalyzerrc.json</code> in your project root:</p>
+      <div class="terminal">
+        <div class="terminal__bar">
+          <span class="terminal__dot terminal__dot--red"></span>
+          <span class="terminal__dot terminal__dot--yellow"></span>
+          <span class="terminal__dot terminal__dot--green"></span>
+          <span class="terminal__title">.stateanalyzerrc.json</span>
+        </div>
+        <pre class="terminal__body">{
+  <span class="t-cyan">"exclude"</span>: [<span class="t-green">"legacy/"</span>, <span class="t-green">"generated/"</span>],
+  <span class="t-cyan">"threshold"</span>: <span class="t-green">"C"</span>,
+  <span class="t-cyan">"format"</span>: <span class="t-green">"default"</span>,
+  <span class="t-cyan">"plugins"</span>: [
+    {
+      <span class="t-cyan">"name"</span>: <span class="t-green">"legend-state"</span>,
+      <span class="t-cyan">"patterns"</span>: [{ <span class="t-cyan">"regex"</span>: <span class="t-green">"useObservable\\s*\\("</span>, <span class="t-cyan">"type"</span>: <span class="t-green">"legend-state"</span> }],
+      <span class="t-cyan">"label"</span>: <span class="t-green">"Legend State"</span>
+    }
+  ]
+}</pre>
+      </div>
+      <div class="config__fields">
+        <div class="config-field">
+          <code>exclude</code>
+          <span>File path patterns to skip during analysis</span>
+        </div>
+        <div class="config-field">
+          <code>threshold</code>
+          <span>Default complexity threshold grade</span>
+        </div>
+        <div class="config-field">
+          <code>format</code>
+          <span>Default output format (default, md)</span>
+        </div>
+        <div class="config-field">
+          <code>plugins</code>
+          <span>Custom state patterns for internal/third-party libraries</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JSON Export -->
+  <section id="json" class="json-export">
+    <div class="container">
+      <h2 class="section__title">JSON Export</h2>
+      <div class="terminal">
+        <div class="terminal__bar">
+          <span class="terminal__dot terminal__dot--red"></span>
+          <span class="terminal__dot terminal__dot--yellow"></span>
+          <span class="terminal__dot terminal__dot--green"></span>
+          <span class="terminal__title">analysis.json</span>
+        </div>
+        <pre class="terminal__body">{
+  <span class="t-cyan">"summary"</span>: {
+    <span class="t-cyan">"totalComponents"</span>: <span class="t-yellow">68</span>,
+    <span class="t-cyan">"totalStateUsages"</span>: <span class="t-yellow">20</span>,
+    <span class="t-cyan">"byType"</span>: { <span class="t-cyan">"useState"</span>: <span class="t-yellow">16</span>, <span class="t-cyan">"zustand"</span>: <span class="t-yellow">4</span> },
+    <span class="t-cyan">"complexity"</span>: { <span class="t-cyan">"averageScore"</span>: <span class="t-yellow">1.1</span>, <span class="t-cyan">"grade"</span>: <span class="t-green">"A"</span> }
+  },
+  <span class="t-cyan">"components"</span>: [ ... ],
+  <span class="t-cyan">"customHooks"</span>: [ ... ],
+  <span class="t-cyan">"suggestions"</span>: [ ... ]
+}</pre>
       </div>
     </div>
   </section>

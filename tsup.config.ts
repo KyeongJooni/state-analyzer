@@ -6,7 +6,7 @@ export default defineConfig({
   dts: true,
   shims: true,
   clean: true,
-  sourcemap: true,
+  sourcemap: false,
   target: 'node16',
   outDir: 'dist',
   esbuildOptions(options) {

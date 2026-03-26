@@ -8,252 +8,71 @@
 
 [![npm version](https://img.shields.io/npm/v/state-analyzer.svg)](https://www.npmjs.com/package/state-analyzer)
 [![npm downloads](https://img.shields.io/npm/dm/state-analyzer.svg)](https://www.npmjs.com/package/state-analyzer)
-[![license](https://img.shields.io/npm/l/state-analyzer.svg)](https://github.com/KyeongJooni/state-analyzer/blob/main/LICENSE)
+[![license](https://img.shields.io/npm/l/state-analyzer.svg)](https://github.com/KyeongJooni/react-state-analyzer/blob/main/LICENSE)
 [![node version](https://img.shields.io/node/v/state-analyzer.svg)](https://nodejs.org)
+
+[Homepage](https://kyeongjooni.github.io/react-state-analyzer/) · [npm](https://www.npmjs.com/package/state-analyzer) · [Issues](https://github.com/KyeongJooni/react-state-analyzer/issues)
 
 </div>
 
 ---
 
-## Overview
+Static analysis for React/Next.js codebases. Detect state management patterns, measure complexity, and catch anti-patterns across 11 libraries.
 
-State Analyzer statically analyzes your React/Next.js codebase to provide insights into state management patterns, complexity hotspots, and potential anti-patterns. Supports server/client component detection for Next.js App Router.
-
-## Features
-
-- **11 Library Support** - React hooks, Redux, Zustand, Jotai, MobX, Recoil, Valtio, TanStack Query, SWR
-- **Next.js Support** - Server/client component detection, route file classification, hook misuse warnings
-- **Custom Hook Analysis** - Detects custom hook definitions and their internal state usage
-- **Complexity Scoring** - A~F grade per component and project-wide average
-- **Unused State Detection** - Warns about declared but never-used state variables
-- **Re-render Risk Detection** - Flags anti-patterns like excessive hooks or library mixing
-- **Diff Mode** - Compare two analysis snapshots to track changes over time
-- **Markdown Report** - `--format md` for PR-ready markdown tables
-- **Mermaid Diagram** - `--mermaid` for component-state dependency graphs
-- **Config File** - `.stateanalyzerrc.json` for exclude paths, plugins, defaults
-- **Plugin System** - Register custom state patterns for internal libraries
-- **Watch Mode** - `state-analyzer watch ./src` for live re-analysis on file changes
-- **JSON Export** - Save analysis results for CI/CD integration
-- **Threshold Check** - `--threshold` option for CI gate (exit code 1 on failure)
-
-## Installation
+## Install
 
 ```bash
 npm install -g state-analyzer
-# or
-yarn global add state-analyzer
-# or
-pnpm add -g state-analyzer
-# or
-bun add -g state-analyzer
 ```
 
 ## Quick Start
 
 ```bash
-# Generate config file
-state-analyzer init
+state-analyzer init          # generate config
+state-analyzer analyze ./src # run analysis
 ```
 
-## Usage
+## Features
 
-```bash
-# Basic analysis
-state-analyzer analyze ./src
-
-# Verbose output with component details
-state-analyzer analyze ./src --verbose
-
-# Export results to JSON
-state-analyzer analyze ./src --output analysis.json
-
-# CI gate: fail if project complexity exceeds grade C
-state-analyzer analyze ./src --threshold C
-
-# Markdown report (for PR descriptions)
-state-analyzer analyze ./src --format md
-
-# Mermaid dependency diagram
-state-analyzer analyze ./src --mermaid
-
-# Compare two analysis snapshots
-state-analyzer diff before.json after.json
-
-# Watch mode (re-analyze on file changes)
-state-analyzer watch ./src
-```
+- **11 libraries** — React hooks, Redux, Zustand, Jotai, MobX, Recoil, Valtio, TanStack Query, SWR
+- **Next.js** — server/client component detection, route file classification
+- **Complexity scoring** — A~F grade, `--threshold` for CI gate
+- **Custom hooks** — traces internal state usage
+- **Anti-pattern detection** — unused state, excessive hooks, library mixing
+- **Multiple outputs** — terminal, markdown (`--format md`), mermaid (`--mermaid`), JSON
+- **Diff mode** — compare two analysis snapshots
+- **Watch mode** — live re-analysis on file changes
+- **Plugins** — register custom state patterns via `.stateanalyzerrc.json`
 
 ## Example Output
 
 ```
-Starting state analysis...
-
 === Analysis Summary ===
 
-Total components: 45
-Components with state: 28 (62.2%)
-Total state usage: 87
-Average: 3.1 states/component
-Custom hooks: 5
-
-Usage by type:
-  useState: 52
-  Redux: 23
-  Zustand: 18
-  useContext: 12
-  TanStack Query: 8
-  Jotai: 5
+Total components: 68
+Components with state: 12 (17.6%)
+Average: 1.7 states/component
+Environment: 8 client / 4 server
 
 === Complexity ===
 
-Project grade: B (score: 8.3)
-
-Component grades:
-  A ████████████████ (16)
-  B ████████ (8)
-  C ██ (2)
-  D █ (1)
-
-=== Top 10 Components ===
-
- 1. UserDashboard D (8 states) - src/pages/Dashboard.tsx
-    useState(3), Redux(2), Zustand(2), useContext(1)
+Project grade: A (score: 1.1)
 
 === Suggestions ===
 
-  ! UserDashboard (src/pages/Dashboard.tsx)
-    8 state hooks detected — consider grouping related state with useReducer or extracting to a custom hook
+  ! ToastProvider (src/contexts/ToastContext.tsx)
+    4 state hooks detected — consider extracting to a custom hook
 ```
 
-## Supported State Patterns
-
-| Library | Hooks Detected |
-|---------|---------------|
-| **React** | `useState`, `useContext`, `useReducer` |
-| **Redux** | `useSelector`, `useDispatch`, `useStore` |
-| **Zustand** | `use*Store()` patterns |
-| **Jotai** | `useAtom`, `useAtomValue`, `useSetAtom` |
-| **MobX** | `observer`, `useLocalObservable` |
-| **Recoil** | `useRecoilState`, `useRecoilValue`, `useSetRecoilState` |
-| **Valtio** | `useSnapshot` |
-| **TanStack Query** | `useQuery`, `useMutation`, `useInfiniteQuery`, `useSuspenseQuery` |
-| **SWR** | `useSWR`, `useSWRMutation` |
-
-## Options
-
-### `state-analyzer analyze <path>`
-
-| Option | Alias | Description |
-|--------|-------|-------------|
-| `<path>` | - | Directory to analyze (required) |
-| `--output <file>` | `-o` | Save results as JSON |
-| `--verbose` | `-v` | Show detailed component information |
-| `--threshold <grade>` | `-t` | Fail if project complexity exceeds grade (A/B/C/D/F) |
-| `--format <type>` | `-f` | Output format: `default`, `md` (markdown) |
-| `--mermaid` | - | Output Mermaid diagram of component-state dependencies |
-
-### `state-analyzer diff <before> <after>`
-
-Compare two analysis JSON files and show changes:
-
-```bash
-state-analyzer diff before.json after.json
-```
-
-### `state-analyzer watch <path>`
-
-Watch for file changes and re-analyze automatically:
-
-```bash
-state-analyzer watch ./src
-```
-
-## Configuration
-
-Create a `.stateanalyzerrc.json` in your project root:
-
-```json
-{
-  "exclude": ["legacy/", "generated/"],
-  "threshold": "C",
-  "format": "default",
-  "plugins": [
-    {
-      "name": "legend-state",
-      "patterns": [{ "regex": "useObservable\\s*\\(", "type": "legend-state" }],
-      "label": "Legend State"
-    }
-  ]
-}
-```
-
-| Field | Description |
-|-------|-------------|
-| `exclude` | File path patterns to skip during analysis |
-| `threshold` | Default complexity threshold grade |
-| `format` | Default output format (`default`, `md`) |
-| `plugins` | Custom state patterns for internal/third-party libraries |
-
-## Use Cases
-
-### Code Review
-Identify components with excessive state that may benefit from refactoring:
-```bash
-state-analyzer analyze ./src --verbose
-```
-
-### Migration Planning
-Understand current patterns before migrating to a new state management solution:
-```bash
-state-analyzer analyze ./src --output before-migration.json
-```
-
-### CI/CD Integration
-Fail the build if state complexity exceeds a threshold:
-```bash
-state-analyzer analyze ./src --threshold C --output metrics.json
-```
-
-## JSON Export Format
-
-```json
-{
-  "summary": {
-    "totalComponents": 45,
-    "totalStateUsages": 87,
-    "byType": { "useState": 52, "zustand": 18 },
-    "complexity": { "averageScore": 8.3, "grade": "B" }
-  },
-  "components": [
-    {
-      "name": "UserDashboard",
-      "file": "src/pages/Dashboard.tsx",
-      "stateUsages": [...],
-      "complexity": { "score": 21, "grade": "D" }
-    }
-  ],
-  "customHooks": [...],
-  "suggestions": [...]
-}
-```
+For full documentation, visit the [homepage](https://kyeongjooni.github.io/react-state-analyzer/).
 
 ## Requirements
 
 - Node.js >= 16.0.0
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 ## License
 
 [MIT](LICENSE)
-
-## Links
-
-- [npm package](https://www.npmjs.com/package/state-analyzer)
-- [GitHub repository](https://github.com/KyeongJooni/state-analyzer)
-- [Issues](https://github.com/KyeongJooni/state-analyzer/issues)
 
 ---
 
